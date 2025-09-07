@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>TSV 正規化ツール</title>
+  <style>
+    textarea {
+      width: 90%;
+      height: 200px;
+      font-family: monospace;
+    }
+    #outputArea {
+      white-space: pre-wrap;
+      border: 1px solid #ccc;
+      padding: 10px;
+      background-color: #f9f9f9;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>TSV 正規化・逆変換ツール</h1>
+
+  <!-- 入力用エリア -->
+  <button onclick="sendData('normalize')">正規化</button>
+  <button onclick="sendData('denormalize')">逆変換</button>
+  <br><br>
+  <textarea id="inputArea" placeholder="ここにTSVを入力してください"></textarea>
+  <br>
+  <button id = "ClearInput" onclick = "clearArea(this.id)">クリア</button>
+
+  <!-- 出力用エリア -->
+  <h2>出力</h2>
+  <pre id="outputArea"></pre>
+  <button id = "ClearOutput" onclick = "clearArea(this.id)">クリア</button>
+
+  <script>
+    /**
+     * サーバーへTSVデータを送信し、結果を取得・表示する関数
+     * @param {string} mode - 処理モード ("normalize" または "denormalize")
+     */
+    function sendData(mode) {
+      const tsv = document.getElementById("inputArea").value; // 入力内容を取得
+
+      fetch("http://localhost:8080?mode=" + mode, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: tsv
+      })
+      .then(res => res.text()) // レスポンスをテキストとして取得
+      .then(data => {
+        // 取得した結果を出力領域に表示
+        document.getElementById("outputArea").innerText = data;
+      })
+      .catch(err => {
+        alert("通信エラー: " + err); // エラーが起きた場合にアラート表示
+      });
+    }
+    /**
+     * クリア処理
+     * @param {string} buttonId - クリアボタンのID
+     */
+    function clearArea(buttonId) {
+      if (buttonId === "ClearInput") {
+        // buttonIdが"ClearInput"の場合
+        document.getElementById("inputArea").value = "";
+      } else {
+        // buttonIdが"ClearOutput" の場合
+        document.getElementById("outputArea").innerText = "";
+      }
+    }
+  </script>
+</body>
+</html>
